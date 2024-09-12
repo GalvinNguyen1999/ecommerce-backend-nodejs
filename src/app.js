@@ -5,18 +5,18 @@ const compression = require("compression");
 const app = express();
 
 // init middlewares
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 app.use(helmet());
-// app.use(compression());
+app.use(compression());
 
 // init db
-
+require("./dbs/init.mongodb");
+// const { checkOverLoad } = require('./helpers/check.connect')
+// checkOverLoad()
 // innit route
 app.get("/", (req, res) => {
-  const strCompress = 'Cuong dev'
-  return res.status(200).json({ message: "Hello World", metadata: strCompress.repeat(100000) });
+  return res.status(200).json({ message: "Hello World" });
 });
 
 // handling error
-
 module.exports = app;
