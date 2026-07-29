@@ -11,8 +11,9 @@ app.use(compression());
 
 // init db
 require("./dbs/init.mongodb");
-// const { checkOverLoad } = require('./helpers/check.connect')
-// checkOverLoad()
+const { checkOverLoad } = require('./helpers/check.connect')
+checkOverLoad()
+
 // innit route
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Hello World" });
