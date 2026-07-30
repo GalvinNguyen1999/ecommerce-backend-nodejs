@@ -1,8 +1,8 @@
 "use strict";
 
 const mongoose = require("mongoose");
-const { db: { host, port, name } } = require('../configs/config.mongdb.js')
-const connectString = process.env.MONGODB;
+const { db: { host, port, name, user, pass } } = require("../configs/config.mongdb.js");
+const connectString = `mongodb://${user}:${pass}@${host}:${port}/${name}?authSource=admin`;
 const { countConnect } = require("../helpers/check.connect.js");
 
 class Database {

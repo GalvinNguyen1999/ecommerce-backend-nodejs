@@ -9,6 +9,8 @@ const dev = {
     host: process.env.DEV_DB_HOST || 'localhost',
     port: process.env.DEV_DB_PORT || 27017,
     name: process.env.DEV_DB_NAME || 'ecommerceDEV',
+    user: process.env.DEV_DB_USER || '',
+    pass: process.env.DEV_DB_PASS || '',
   }
 }
 
@@ -20,6 +22,8 @@ const pro = {
     host: process.env.PRO_DB_HOST || 'localhost',
     port: process.env.PRO_DB_PORT || 27017,
     name: process.env.PRO_DB_NAME || 'ecommercePRO',
+    user: process.env.PRO_DB_USER || '',
+    pass: process.env.PRO_DB_PASS || '',
   }
 }
 
