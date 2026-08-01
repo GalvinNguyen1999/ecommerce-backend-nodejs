@@ -1,6 +1,6 @@
 'use strict'
 
-const ApiKeyService = require("../services/apiKey.service")
+const { findByKey } = require("../services/apiKey.service")
 const crypto = require('crypto')
 
 const HEADERS = {
@@ -17,13 +17,8 @@ const apiKey = async (req, res, next) => {
       })
     }
 
-    const apiKeyStore = await ApiKeyService.findByKey(apiKey)
+    const apiKeyStore = await findByKey(apiKey)
     if (!apiKeyStore) {
-      // await ApiKeyService.create({
-      //   key: crypto.randomBytes(64).toString('hex'),
-      //   permissions: ['0000']
-      // })
-      
       return res.status(403).json({
         message: 'Forbidden Error',
       })

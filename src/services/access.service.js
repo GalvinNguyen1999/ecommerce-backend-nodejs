@@ -3,7 +3,7 @@
 const shopModel = require('../models/shop.model')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
-const KeyTokenService = require('./keyToken.service')
+const { createKeyToken } = require('./keyToken.service')
 const { createTokenPair } = require('../auth/authUtil')
 const { getInfoData } = require('../utils')
 const { BadRequestError } = require('../core/error.response')
@@ -37,7 +37,7 @@ class AccessService {
       const privateKey = crypto.getRandomValues(new Uint8Array(64))
       const publicKey = crypto.getRandomValues(new Uint8Array(64))
 
-      const keyStore = await KeyTokenService.create({
+      const keyStore = createKeyToken({
         userId: newShop._id,
         publicKey,
         privateKey
