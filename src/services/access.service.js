@@ -4,10 +4,10 @@ const bcrypt = require('bcrypt')
 
 const crypto = require('crypto')
 const KeyTokenService = require('../services/keyToken.service')
-const { BadRequestError } = require('../core/error.response')
+const { BadRequestError, ForbiddenError } = require('../core/error.response')
 
 const { findByEmail, createShop } = require('../services/shop.service')
-const { createTokenPair } = require('../auth/authUtil')
+const { createTokenPair, verifyToken } = require('../auth/authUtil')
 const { getInfoData } = require('../utils')
 
 const RoleShop = {
@@ -42,10 +42,11 @@ class AccessService {
     const tokens = await createTokenPair({ userId: userId, email }, publicKey, privateKey)
   
     await KeyTokenService.create({
-      userId: userId,
-      publicKey,
-      privateKey,
-      refreshTokens: tokens.refreshTokens
+      refreshToken: tokens.refreshToken,
+      userId: foundShop._id,
+      privateKey: privateKey,
+      publicKey: publicKey,
+      refreshTokensUsed: []
     })
     
     // return
@@ -79,17 +80,19 @@ class AccessService {
       const privateKey = crypto.randomBytes(64).toString('hex')
       const publicKey = crypto.randomBytes(64).toString('hex')
 
-      const keyStore = await KeyTokenService.create({
+      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
+
+        const keyStore = await KeyTokenService.create({
         userId: newShop._id,
         publicKey,
-        privateKey
+        privateKey,
+        refreshTokensUsed: [],
+        refreshToken: tokens.refreshToken
       })
 
       if (!keyStore) {
         throw new BadRequestError('Error create key token')
       }
-
-      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
 
       return {
         code: 201,
@@ -110,6 +113,43 @@ class AccessService {
     const delKey = await KeyTokenService.removeByKeyId(keyStore._id)
     console.log(`delKey:: ${delKey}`)
     return delKey
+  }
+
+  static handleRefreshToken = async (refreshToken) => {
+    const refreshTokenUsed = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
+    if (refreshTokenUsed) {
+      const { userId, email } = await verifyToken(refreshToken, refreshTokenUsed.privateKey)
+      console.log(`userId, email 1:: ${userId}, ${email}`)
+
+      await KeyTokenService.removeByUserId(userId)
+
+      throw new ForbiddenError('Refresh token not valid')
+    }
+
+    const refreshTokenFound = await KeyTokenService.findByRefreshToken(refreshToken)
+    if (!refreshTokenFound) throw new ForbiddenError('Shop not found 1')
+
+    const { userId, email } = await verifyToken(refreshToken, refreshTokenFound.privateKey)
+    console.log(`userId, email 2:: ${userId}, ${email}`)
+
+    const foundShop = await findByEmail(email)
+    if (!foundShop) throw new ForbiddenError('Shop not found 2')
+
+    const tokens = await createTokenPair({ userId: userId, email }, refreshTokenFound.publicKey, refreshTokenFound.privateKey)
+      
+    await refreshTokenFound.updateOne({
+      $set: {
+        refreshTokens: tokens.refreshTokens,
+      },
+      $addToSet: {
+        refreshTokensUsed: refreshToken
+      }
+    })
+
+    return {
+      user: { userId, email },
+      tokens
+    }
   }
 }
 

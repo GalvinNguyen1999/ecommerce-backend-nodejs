@@ -3,13 +3,13 @@
 const keyTokenModel = require('../models/keytoken.model')
 
 class KeyTokenService {
-  static create = async ({ userId, publicKey, privateKey, refreshTokens, refreshTokensUsed }) => {
+  static create = async ({ userId, publicKey, privateKey, refreshToken, refreshTokensUsed }) => {
     try {
       const filter = { user: userId }
       const update = {
         publicKey,
         privateKey,
-        refreshTokens,
+        refreshToken,
         refreshTokensUsed
       }
       const options = { upsert: true, new: true }
@@ -28,6 +28,18 @@ class KeyTokenService {
   
   static removeByKeyId = async (keyId) => {
     return await keyTokenModel.deleteOne({ _id: keyId })
+  }
+
+  static findByRefreshTokenUsed = async (refreshToken) => {
+    return await keyTokenModel.findOne({ refreshTokensUsed: refreshToken }).lean()
+  }
+
+  static removeByUserId = async (userId) => {
+    return await keyTokenModel.deleteOne({ user: userId })
+  }
+
+  static findByRefreshToken = async (refreshToken) => {
+    return await keyTokenModel.findOne({ refreshToken: refreshToken })
   }
 }
 

@@ -58,8 +58,13 @@ const authentication = async (req, res, next) => {
   }
 }
 
+const verifyToken = async (token, privateKey) => {
+  return await JWT.verify(token, privateKey)
+}
+
 module.exports = {
   HEADERS,
   createTokenPair,
-  authentication
+  authentication,
+  verifyToken
 }
