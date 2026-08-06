@@ -34,7 +34,7 @@ const clothingSchema = new Schema(
   },
   {
     timestamps: true,
-    collection: "clothes",
+    collection: "Clothes",
   },
 );
 
@@ -46,7 +46,7 @@ const electronicSchema = new Schema(
   },
   {
     timestamps: true,
-    collection: "electronics",
+    collection: "Electronics",
   },
 );
 
