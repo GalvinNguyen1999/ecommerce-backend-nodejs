@@ -11,11 +11,12 @@ const HEADERS = {
   API_KEY: "x-api-key",
   CLIENT_ID: "x-client-id",
   AUTHORIZATION: "authorization",
+  REFRESH_TOKEN: "refreshtoken",
 };
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
   try {
-    const accessToken = await JWT.sign(payload, privateKey, {
+    const accessToken = await JWT.sign(payload, publicKey, {
       expiresIn: "2 days",
     });
 
@@ -63,6 +64,44 @@ const authentication = async (req, res, next) => {
   }
 };
 
+const authenticationv2 = async (req, res, next) => {
+  try {
+    const userId = req.headers[HEADERS.CLIENT_ID];
+    if (!userId) throw new AuthenticationError("Invalid client id");
+
+    const keyStore = await findByUserId(userId);
+    if (!keyStore) throw new NotFoundError("Key not found");
+
+    const refreshToken = req.headers[HEADERS.REFRESH_TOKEN];
+
+    if (refreshToken) {
+      const decoded = JWT.verify(refreshToken, keyStore.privateKey);
+      
+      if (userId !== decoded.userId)
+        throw new AuthenticationError("Invalid user id");
+
+      req.keyStore = keyStore;
+      req.user = decoded;
+      req.refreshToken = refreshToken;
+      next();
+      return
+    }
+
+    const accessToken = req.headers[HEADERS.AUTHORIZATION];
+    if (!accessToken) throw new AuthenticationError("Invalid access token");
+
+    const decoded = JWT.verify(accessToken, keyStore.publicKey);
+    if (userId !== decoded.userId)
+      throw new AuthenticationError("Invalid user id");
+
+    req.keyStore = keyStore;
+    req.user = decoded;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 const verifyToken = async (token, privateKey) => {
   return await JWT.verify(token, privateKey);
 };
@@ -71,5 +110,6 @@ module.exports = {
   HEADERS,
   createTokenPair,
   authentication,
+  authenticationv2,
   verifyToken,
 };

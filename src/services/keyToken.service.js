@@ -41,6 +41,10 @@ class KeyTokenService {
   static findByRefreshToken = async (refreshToken) => {
     return await keyTokenModel.findOne({ refreshToken: refreshToken })
   }
+
+  static updateOne = async (filter, update) => {
+    return await keyTokenModel.updateOne(filter, update)
+  }
 }
 
 module.exports = KeyTokenService
