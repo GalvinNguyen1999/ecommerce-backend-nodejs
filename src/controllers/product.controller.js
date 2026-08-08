@@ -3,16 +3,12 @@ const ProductServicev2 = require("../services/product.service.strategy");
 const { CREATED, SuccessResponse } = require("../core/success.response");
 
 class ProductController {
-  // createProduct = async (req, res, next) => {
-  //   new CREATED({
-  //     message: "Create new product success!",
-  //     metadata: await ProductService.createProduct(req.body.product_type, {
-  //       ...req.body,
-  //       product_shop: req.user.userId,
-  //     }),
-  //   }).send(res);
-  // };
-
+  /**
+   * @description Create new product
+   * @param { Object } req
+   * @param { Object } res
+   * @returns { JSON }
+   */
   createProduct = async (req, res, next) => {
     new CREATED({
       message: "Create new product success!",
@@ -94,6 +90,32 @@ class ProductController {
       metadata: await ProductServicev2.getListSearchProduct({
         keySearch: req.params.keySearch,
       }),
+    }).send(res);
+  }
+
+  /**
+   * @description Get all products
+   * @param { Object } req
+   * @param { Object } res
+   * @returns { JSON }
+   */
+  getAllProducts = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Get all products success!",
+      metadata: await ProductServicev2.getAllProducts(req.query),
+    }).send(res);
+  }
+
+  /**
+   * @description Get product by id
+   * @param { Object } req
+   * @param { Object } res
+   * @returns { JSON }
+   */
+  getProductById = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Get product by id success!",
+      metadata: await ProductServicev2.getProduct(req.params),
     }).send(res);
   }
 }
