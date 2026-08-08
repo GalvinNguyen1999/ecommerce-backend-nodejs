@@ -10,6 +10,7 @@ const {
 } = require("../product.model");
 
 const { getSelectData, getUnSelectData } = require("../../utils");
+const { BadRequestError } = require("../../core/error.response");
 
 const queryProduct = async ({ query, limit, skip }) => {
   return await product
@@ -117,6 +118,25 @@ const findProduct = async ({ product_id, unselect }) => {
   return result;
 };
 
+const updateProductById = async ({
+  product_id,
+  bodyUpdate,
+  isNew = true,
+  model = product,
+}) => {
+  const result = await model.findByIdAndUpdate(
+    product_id,
+    {
+      $set: bodyUpdate,
+    },
+    {
+      new: isNew,
+    },
+  );
+
+  return result;
+};
+
 module.exports = {
   findAllDraftsForShop,
   findAllPublishedForShop,
@@ -125,4 +145,5 @@ module.exports = {
   getListSearchProduct,
   findAllProducts,
   findProduct,
+  updateProductById,
 };

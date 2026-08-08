@@ -19,9 +19,23 @@ class ProductController {
     }).send(res);
   };
 
+  updateProduct = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Update product success!",
+      metadata: await ProductServicev2.updateProduct(
+        req.body.product_type,
+        req.params.id,
+        {
+          ...req.body,
+          product_shop: req.user.userId,
+        },
+      ),
+    }).send(res);
+  };
+
   /**
    * @description Get all drafts for shop
-   * @param {Number} limit 
+   * @param {Number} limit
    * @param {Number} skip
    * @returns { JSON }
    */
@@ -32,11 +46,11 @@ class ProductController {
         product_shop: req.user.userId,
       }),
     }).send(res);
-  }
+  };
 
   /**
    * @description Get all published for shop
-   * @param {Number} limit 
+   * @param {Number} limit
    * @param {Number} skip
    * @returns { JSON }
    */
@@ -47,11 +61,11 @@ class ProductController {
         product_shop: req.user.userId,
       }),
     }).send(res);
-  }
+  };
 
   /**
    * @description Publish product by shop
-   * @param {Number} product_id 
+   * @param {Number} product_id
    * @returns { JSON }
    */
   publishProductByShop = async (req, res, next) => {
@@ -62,11 +76,11 @@ class ProductController {
         product_shop: req.user.userId,
       }),
     }).send(res);
-  }
+  };
 
   /**
    * @description Unpublish product by shop
-   * @param {Number} product_id 
+   * @param {Number} product_id
    * @returns { JSON }
    */
   unpublishProductByShop = async (req, res, next) => {
@@ -77,11 +91,11 @@ class ProductController {
         product_shop: req.user.userId,
       }),
     }).send(res);
-  }
+  };
 
   /**
    * @description get list search product
-   * @param {String} keySearch 
+   * @param {String} keySearch
    * @returns { JSON }
    */
   getListSearchProduct = async (req, res, next) => {
@@ -91,7 +105,7 @@ class ProductController {
         keySearch: req.params.keySearch,
       }),
     }).send(res);
-  }
+  };
 
   /**
    * @description Get all products
@@ -104,7 +118,7 @@ class ProductController {
       message: "Get all products success!",
       metadata: await ProductServicev2.getAllProducts(req.query),
     }).send(res);
-  }
+  };
 
   /**
    * @description Get product by id
@@ -117,7 +131,7 @@ class ProductController {
       message: "Get product by id success!",
       metadata: await ProductServicev2.getProduct(req.params),
     }).send(res);
-  }
+  };
 }
 
 module.exports = new ProductController();

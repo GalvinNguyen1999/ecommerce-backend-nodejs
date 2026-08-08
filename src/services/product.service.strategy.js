@@ -16,7 +16,9 @@ const {
   getListSearchProduct,
   findAllProducts,
   findProduct,
+  updateProductById,
 } = require("../models/repositories/product.repo");
+const { removeNullOrUndefined, updateNestedObject } = require("../utils");
 
 class ProductFactory {
   static productRegistry = {};
@@ -32,6 +34,15 @@ class ProductFactory {
     }
 
     return new product(payload).createProduct();
+  }
+
+  static async updateProduct(type, product_id, payload) {
+    const product = this.productRegistry[type];
+    if (!product) {
+      throw new BadRequestError("Product Type Not Found");
+    }
+
+    return new product(payload).updateProduct(product_id, payload);
   }
 
   static async getAllDraftsForShop({ product_shop, limit = 50, skip = 0 }) {
@@ -110,6 +121,14 @@ class Product {
       _id: product_id,
     });
   }
+
+  async updateProduct(productId, bodyUpdate) {
+    return await updateProductById({
+      product_id: productId,
+      bodyUpdate,
+      model: product,
+    });
+  }
 }
 
 class Clothing extends Product {
@@ -124,6 +143,29 @@ class Clothing extends Product {
     if (!newProduct) throw new BadRequestError("Create Product Failed");
 
     return newProduct;
+  }
+
+  async updateProduct(product_id) {
+    const objectParams = removeNullOrUndefined(this);
+
+    if (objectParams.product_attributes) {
+      const product_attributes = removeNullOrUndefined(
+        objectParams.product_attributes,
+      );
+
+      await updateProductById({
+        product_id,
+        bodyUpdate: updateNestedObject(product_attributes),
+        model: clothing,
+      });
+    }
+
+    const updateProduct = await super.updateProduct(
+      product_id,
+      updateNestedObject(objectParams),
+    );
+
+    return updateProduct;
   }
 }
 
