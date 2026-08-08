@@ -7,9 +7,6 @@ class ProductFactory {
   static productRegistry = {}
 
   static registerProduct(type, product) {
-
-    console.log(`productRegistry:: ${JSON.stringify(this.productRegistry)}`)
-    
     this.productRegistry[type] = product
   }
   
