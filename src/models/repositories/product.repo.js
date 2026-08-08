@@ -36,7 +36,7 @@ const publishProductByShop = async ({ product_id, product_shop }) => {
         isDraft: false,
         isPublished: true,
       },
-    }
+    },
   );
 
   if (result.matchedCount === 0) {
@@ -60,7 +60,7 @@ const unpublishProductByShop = async ({ product_id, product_shop }) => {
         isDraft: true,
         isPublished: false,
       },
-    }
+    },
   );
 
   if (result.matchedCount === 0) {
@@ -73,9 +73,28 @@ const unpublishProductByShop = async ({ product_id, product_shop }) => {
   };
 };
 
+const getListSearchProduct = async ({ keySearch }) => {
+  const regexSearch = new RegExp(keySearch);
+
+  const results = await product
+    .find(
+      {
+        $text: { $search: regexSearch },
+      },
+      {
+        score: { $meta: "textScore" },
+      },
+    )
+    .sort({ score: { $meta: "textScore" } })
+    .lean();
+
+  return results;
+};
+
 module.exports = {
   findAllDraftsForShop,
   findAllPublishedForShop,
   publishProductByShop,
   unpublishProductByShop,
+  getListSearchProduct,
 };

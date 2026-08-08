@@ -38,6 +38,21 @@ const productSchema = new Schema(
   },
 );
 
+productSchema.index(
+  {
+    product_name: "text",
+    product_description: "text",
+  },
+  {
+    weights: {
+      product_name: 10,
+      product_description: 1,
+    },
+    name: "product_search_text",
+  },
+);
+
+
 productSchema.pre("save", async function (next) {
   this.product_slug = slugify(this.product_name, { lower: true });
   next();
