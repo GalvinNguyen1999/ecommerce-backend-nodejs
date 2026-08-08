@@ -1,5 +1,7 @@
 "use strict";
 
+const { Types } = require("mongoose");
+
 const {
   product,
   clothing,
@@ -7,7 +9,7 @@ const {
   furniture,
 } = require("../product.model");
 
-const findAllDraftsForShop = async ({ query, limit, skip }) => {
+const queryProduct = async ({ query, limit, skip }) => {
   return await product
     .find(query)
     .populate("product_shop", "name email -_id")
@@ -15,6 +17,65 @@ const findAllDraftsForShop = async ({ query, limit, skip }) => {
     .skip(skip);
 };
 
+const findAllDraftsForShop = async ({ query, limit, skip }) => {
+  return await queryProduct({ query, limit, skip });
+};
+
+const findAllPublishedForShop = async ({ query, limit, skip }) => {
+  return await queryProduct({ query, limit, skip });
+};
+
+const publishProductByShop = async ({ product_id, product_shop }) => {
+  const result = await product.updateOne(
+    {
+      _id: new Types.ObjectId(product_id),
+      product_shop: new Types.ObjectId(product_shop),
+    },
+    {
+      $set: {
+        isDraft: false,
+        isPublished: true,
+      },
+    }
+  );
+
+  if (result.matchedCount === 0) {
+    return null;
+  }
+
+  return {
+    matched: result.matchedCount,
+    modified: result.modifiedCount,
+  };
+};
+
+const unpublishProductByShop = async ({ product_id, product_shop }) => {
+  const result = await product.updateOne(
+    {
+      _id: new Types.ObjectId(product_id),
+      product_shop: new Types.ObjectId(product_shop),
+    },
+    {
+      $set: {
+        isDraft: true,
+        isPublished: false,
+      },
+    }
+  );
+
+  if (result.matchedCount === 0) {
+    return null;
+  }
+
+  return {
+    matched: result.matchedCount,
+    modified: result.modifiedCount,
+  };
+};
+
 module.exports = {
   findAllDraftsForShop,
+  findAllPublishedForShop,
+  publishProductByShop,
+  unpublishProductByShop,
 };

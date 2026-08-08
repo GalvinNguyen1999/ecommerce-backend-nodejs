@@ -1,18 +1,29 @@
 "use strict";
 
-const { product, clothing, electronic, furniture } = require("../models/product.model");
+const {
+  product,
+  clothing,
+  electronic,
+  furniture,
+} = require("../models/product.model");
 const { BadRequestError } = require("../core/error.response");
-const { findAllDraftsForShop  } = require("../models/repositories/product.repo");
+
+const {
+  findAllDraftsForShop,
+  findAllPublishedForShop,
+  publishProductByShop,
+  unpublishProductByShop
+} = require("../models/repositories/product.repo");
 
 class ProductFactory {
-  static productRegistry = {}
+  static productRegistry = {};
 
   static registerProduct(type, product) {
-    this.productRegistry[type] = product
+    this.productRegistry[type] = product;
   }
-  
+
   static async createProduct(type, payload) {
-    const product = this.productRegistry[type]
+    const product = this.productRegistry[type];
     if (!product) {
       throw new BadRequestError("Product Type Not Found");
     }
@@ -20,16 +31,28 @@ class ProductFactory {
     return new product(payload).createProduct();
   }
 
-  static async getAllDraftsForShop({
-    product_shop,
-    limit = 50,
-    skip = 0,
-  }) {
+  static async getAllDraftsForShop({ product_shop, limit = 50, skip = 0 }) {
     const query = {
       product_shop,
       isDraft: true,
-    }
+    };
     return await findAllDraftsForShop({ query, limit, skip });
+  }
+
+  static async getAllPublishedForShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = {
+      product_shop,
+      isPublished: true,
+    };
+    return await findAllPublishedForShop({ query, limit, skip });
+  }
+
+  static async publishProductByShop({ product_id, product_shop }) {
+    return await publishProductByShop({ product_id, product_shop });
+  }
+
+  static async unpublishProductByShop({ product_id, product_shop }) {
+    return await unpublishProductByShop({ product_id, product_shop });
   }
 }
 
@@ -107,8 +130,8 @@ class Furniture extends Product {
   }
 }
 
-ProductFactory.registerProduct("Clothing", Clothing)
-ProductFactory.registerProduct("Electronic", Electronic)
-ProductFactory.registerProduct("Furniture", Furniture)
+ProductFactory.registerProduct("Clothing", Clothing);
+ProductFactory.registerProduct("Electronic", Electronic);
+ProductFactory.registerProduct("Furniture", Furniture);
 
 module.exports = ProductFactory;

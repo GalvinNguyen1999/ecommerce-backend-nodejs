@@ -30,9 +30,54 @@ class ProductController {
    * @returns { JSON }
    */
   getAllDraftsForShop = async (req, res, next) => {
-    new CREATED({
+    new SuccessResponse({
       message: "Get list draft success!",
       metadata: await ProductServicev2.getAllDraftsForShop({
+        product_shop: req.user.userId,
+      }),
+    }).send(res);
+  }
+
+  /**
+   * @description Get all published for shop
+   * @param {Number} limit 
+   * @param {Number} skip
+   * @returns { JSON }
+   */
+  getAllPublishedForShop = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Get list published success!",
+      metadata: await ProductServicev2.getAllPublishedForShop({
+        product_shop: req.user.userId,
+      }),
+    }).send(res);
+  }
+
+  /**
+   * @description Publish product by shop
+   * @param {Number} product_id 
+   * @returns { JSON }
+   */
+  publishProductByShop = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Publish product success!",
+      metadata: await ProductServicev2.publishProductByShop({
+        product_id: req.params.id,
+        product_shop: req.user.userId,
+      }),
+    }).send(res);
+  }
+
+  /**
+   * @description Unpublish product by shop
+   * @param {Number} product_id 
+   * @returns { JSON }
+   */
+  unpublishProductByShop = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Unpublish product success!",
+      metadata: await ProductServicev2.unpublishProductByShop({
+        product_id: req.params.id,
         product_shop: req.user.userId,
       }),
     }).send(res);
