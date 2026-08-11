@@ -20,7 +20,7 @@ const discountSchema = new Schema(
       default: "fixed_amount", // percentage
     },
     discount_value: {
-      type: String,
+      type: Number,
       reuqired: true,
     },
     discount_code: {
@@ -67,6 +67,10 @@ const discountSchema = new Schema(
     discount_product_ids: {
       type: Array,
       default: [],
+    },
+    discount_max_users_per_user: {
+      type: Number,
+      default: 0,
     },
   },
   {

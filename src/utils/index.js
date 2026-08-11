@@ -51,7 +51,7 @@ const updateNestedObject = (obj) => {
   return final;
 };
 
-const convertToObjectIdMongo = (id) => Types.ObjectId(id);
+const convertToObjectIdMongo = (id) => new Types.ObjectId(id);
 
 module.exports = {
   getInfoData,
