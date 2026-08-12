@@ -9,7 +9,11 @@ const {
   furniture,
 } = require("../product.model");
 
-const { getSelectData, getUnSelectData } = require("../../utils");
+const {
+  getSelectData,
+  getUnSelectData,
+  convertToObjectIdMongo,
+} = require("../../utils");
 const { BadRequestError } = require("../../core/error.response");
 
 const queryProduct = async ({ query, limit, skip }) => {
@@ -137,6 +141,14 @@ const updateProductById = async ({
   return result;
 };
 
+const getProductById = async ({ productId }) => {
+  const result = await product
+    .findOne({ _id: convertToObjectIdMongo(productId) })
+    .lean();
+
+  return result;
+};
+
 module.exports = {
   findAllDraftsForShop,
   findAllPublishedForShop,
@@ -146,4 +158,5 @@ module.exports = {
   findAllProducts,
   findProduct,
   updateProductById,
+  getProductById,
 };

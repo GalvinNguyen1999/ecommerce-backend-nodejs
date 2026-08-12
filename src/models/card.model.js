@@ -22,13 +22,13 @@ const cardSchema = new Schema(
       default: 0,
     },
     card_userId: {
-      type: Schema.Types.ObjectId,
+      type: Number,
       required: true,
     },
   },
   {
     collection: COLLECTION_NAME,
-    timeseries: {
+    timestamps: {
       createAt: "createdOn",
       updatedAt: "modifiedOn",
     },
