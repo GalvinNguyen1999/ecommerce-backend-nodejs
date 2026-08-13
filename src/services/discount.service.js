@@ -212,7 +212,6 @@ class DiscountService {
         ? discount_value
         : totalOrder * (discount_value / 100);
 
-    console.log('amount', amount)
 
     return {
       totalOrder,
