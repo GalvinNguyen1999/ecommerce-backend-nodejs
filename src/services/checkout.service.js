@@ -4,6 +4,8 @@ const { BadRequestError, NotFoundError } = require("../core/error.response");
 const { findCardById } = require("../models/repositories/card.repo");
 const { checkProductByServer } = require("../models/repositories/product.repo");
 const { getDiscountAmount } = require("./discount.service");
+const order = require("../models/order.model");
+const { acquireLock } = require("./redis.service");
 
 /* 
   {
@@ -95,6 +97,53 @@ class CheckoutService {
       shop_order_ids_new,
     };
   }
+
+  static async orderByUser({ userId, cardId, shopId, shop_order_ids }) {
+    // find info checkout
+    const { checkout_order, shop_order_ids_new } = await this.checkoutReview({
+      userId,
+      cardId,
+      shopId,
+      shop_order_ids,
+    });
+
+    // check inventory
+    const products = shop_order_ids_new.flatMap((order) => order.item_products);
+
+    const acquireProduct = [];
+    for (let i = 0; i < products.length; i++) {
+      const { productId, quantity } = products[i];
+      const key = await acquireLock(productId, quantity, cardId);
+      acquireProduct.push(key ? true: false);
+
+      if (key) {
+        await releaseLock(key);
+      }
+    }
+
+    if (acquireProduct.includes(false)) {
+      throw new BadRequestError("Order wrong");
+    }
+    
+    // create order
+    const newOrder = await order.create({
+      order_userId: userId,
+      order_checkout: checkout_order,
+      order_shipping: user_address,
+      order_payment: user_payment,
+      order_products: shop_order_ids_new,
+    });
+
+    // update card
+
+
+    return newOrder;
+  }
+
+  static async getOrderByUser() {}
+  static async getOneOrderByUser() {}
+  static async cancelOrderByUser() {}
+  static async updaelOrderStatusByShop() {}
 }
 
 module.exports = CheckoutService;
